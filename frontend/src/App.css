@@ -1,0 +1,8 @@
+.App {
+  text-align: center;
+}
+
+.custom-card {
+  width: 75vw;
+  margin: 5vh auto; /* Combines top, bottom, and auto horizontal centering */
+}

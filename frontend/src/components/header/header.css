@@ -1,0 +1,53 @@
+/* General styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html {
+  font-family: "Helvetica Neue", "Liberation Mono", monospace;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Header styling */
+.header {
+  height: 37vh;
+  background-color: #031d32;
+  display: flex;
+  align-items: center; /* Centers content vertically */
+  justify-content: center; /* Centers content horizontally */
+  position: relative;
+  overflow: hidden;
+}
+
+.column {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Align text to the left */
+}
+
+.first_line {
+  font-family: "Liberation Mono";
+  color: white;
+  font-size: 3vw;
+  margin-left: 22%;
+  text-align: left;
+  font-weight: bold;
+}
+
+.backgroundImage {
+  margin-bottom: 3%;
+  right: 0;
+  /* max-width: 17vw; */
+  height: 35vh;
+  margin-left: 17vw;
+  object-fit: cover; /* Ensures the image covers the entire header without distortion */
+  opacity: 0.87; /* Optional: Adds a slight transparency to the background image */
+
+}
+
+

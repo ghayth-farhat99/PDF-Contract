@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "eslint": "^9.15.0",
+    "hardhat": "^2.22.15"
+  }
+}

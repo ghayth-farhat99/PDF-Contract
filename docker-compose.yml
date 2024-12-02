@@ -1,0 +1,33 @@
+version: '3'
+services:
+  frontend:
+    image: frontend_image
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:5000
+      - REACT_APP_BACKEND_URL=http://localhost:5000
+    networks:
+      - net
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - 11434:11434
+    volumes:
+      - ~/ollama:/root/.ollama
+    networks:
+      - net
+
+  app:
+    image: backend_image
+    ports:
+      - 5000:5000
+    environment:
+      - OLLAMA_API_BASE_URL=http://ollama:11434
+      - MODEL=llama3.1
+    networks:
+      - net
+
+networks:
+  net:

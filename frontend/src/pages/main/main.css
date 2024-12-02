@@ -1,0 +1,42 @@
+  .upload_container {
+    margin: auto;
+    width: 50%;
+    padding: 10px;
+  }
+
+  .first_paragraph {
+    margin-top: 5%;
+    margin-left: 5%;
+    font-size: 20px;
+    display: block;
+  }
+
+  .container_step {
+    margin: auto;
+    width: 80%;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  pre {
+    width: 100%;
+    /* Ensures full width */
+    white-space: pre-wrap;
+    /* Ensures long lines break and wrap */
+    word-wrap: break-word;
+    /* Avoids horizontal scrolling */
+  }
+
+  pre code {
+    font-family: 'Courier New', monospace;
+    /* Or any monospaced font */
+    font-size: 14px;
+    /* Adjust the font size if necessary */
+  }
+
+  .container-flex {
+    display: flex;
+    gap: 20px;
+  }
