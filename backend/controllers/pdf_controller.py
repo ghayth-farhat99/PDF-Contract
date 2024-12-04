@@ -153,7 +153,7 @@ def analyze_contract_solc():
             "N/A" if compilation_result_returncode == 0 else compilation_result_stderr
         ),
     }
-
+    print(solc_response)
     response = {"compilation_step": solc_response}
     return jsonify(response), 200
 
@@ -169,6 +169,7 @@ def analyze_contract_slither():
         "stdout": slither_result_stdout if slither_result_returncode == 0 else "N/A",
         "stderr": "N/A" if slither_result_returncode == 0 else slither_result_stderr,
     }
+    print(slither_result_stderr)
     response = {"slither_response": slither_response}
     return jsonify(response), 200
 
@@ -240,7 +241,8 @@ def analyze_test():
         'stdout': eslint_result_stdout,
         'stderr': eslint_result_stderr
     }
-    return jsonify(eslint_step), 200
+    response = {"eslint_response": eslint_step}
+    return jsonify(response), 200
 
 @pdf_bp.route('/regenerate_unit_test_eslint', methods=['POST'])
 def regenerate_unit_test():
@@ -252,7 +254,7 @@ def regenerate_unit_test():
     return jsonify({"unit_tests": unit_tests})
 
 @pdf_bp.route('/regenerate_smart_contract_solc', methods=['POST'])
-def regenerate_smart_contractt():
+def regenerate_smart_contract_solc():
     solc_results = request.json["solc_results"]
     print("solc_results : ", solc_results)
     smart_contract = pdf_helper.ask_for_regenerate_smart_contract_solc(solc_results)
@@ -260,7 +262,7 @@ def regenerate_smart_contractt():
     return jsonify({"smart_contract": smart_contract})
 
 @pdf_bp.route('/regenerate_smart_contract_slither', methods=['POST'])
-def regenerate_smart_contractt():
+def regenerate_smart_contract_slither():
     slither_results = request.json["slither_results"]
     print("slither_results : ", slither_results)
     smart_contract = pdf_helper.ask_for_regenerate_smart_contract_slither(slither_results)
@@ -268,10 +270,22 @@ def regenerate_smart_contractt():
     return jsonify({"smart_contract": smart_contract})
 
 @pdf_bp.route('/regenerate_smart_contract_hardhat', methods=['POST'])
-def regenerate_smart_contractt():
-    hardhat_results = request.json["hardhat_results"]
-    print("hardhat_results : ", hardhat_results)
-    smart_contract,unit_test = pdf_helper.ask_for_correct_smart_contract_unit_test_hardhat(hardhat_results)
-    print("smart_contract : ", smart_contract)
-    print("unit_test : ", unit_test)
-    return jsonify({"smart_contract": smart_contract, "unit_test": unit_test})
+def regenerate_smart_contract_unit_test_hardhat():
+    try:
+        # Extract and convert `hardhat_results` to a string
+        hardhat_results = str(request.json.get("hardhat_results", ""))
+        print("hardhat_results (converted to string):", hardhat_results)
+
+        # Pass the sanitized string to the helper function
+        smart_contract, unit_test = pdf_helper.ask_for_correct_smart_contract_unit_test_hardhat(hardhat_results)
+
+        # Log results for debugging
+        print("smart_contract:", smart_contract)
+        print("unit_test:", unit_test)
+
+        return jsonify({"smart_contract": smart_contract, "unit_test": unit_test})
+
+    except Exception as e:
+        # Handle errors gracefully and return an error response
+        print("Error in regenerate_smart_contract_unit_test_hardhat:", e)
+        return jsonify({"error": str(e)}), 500

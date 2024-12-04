@@ -16,6 +16,7 @@ from langchain.prompts import (
     HumanMessagePromptTemplate,
     ChatPromptTemplate,
 )
+from services.extract_code import extract_code
 
 
 class PDFHelperServices:
@@ -231,19 +232,22 @@ class PDFHelperServices:
             return f"Error: {contract_file_path} not found."
         
         escaped_contract_code = contract_code.replace("{", "{{").replace("}", "}}")
+        escaped_results =  results.replace("{", "{{").replace("}", "}}")
+
         prompt = f"""I want you to correct this smart contract code based on these results from solc:
         
         smart contract:
         {escaped_contract_code}
         
         solc Results:
-        {results}
+        {escaped_results}
         
         Note that I want only the corrected code, no other explanations."""
         print("#########", prompt)
         response = self._generate_response(prompt)
 
-        return response
+        return extract_code(response, "solidity")
+        
 
     def ask_for_regenerate_smart_contract_slither(self, results: str) -> str:
         """
@@ -259,19 +263,22 @@ class PDFHelperServices:
             return f"Error: {contract_file_path} not found."
         
         escaped_contract_code = contract_code.replace("{", "{{").replace("}", "}}")
+        escaped_results =  results.replace("{", "{{").replace("}", "}}")
+
         prompt = f"""I want you to correct this smart contract code based on these results from slither:
         
         smart contract:
         {escaped_contract_code}
         
         slither Results:
-        {results}
+        {escaped_results}
         
         Note that I want only the corrected code, no other explanations."""
         print("#########", prompt)
         response = self._generate_response(prompt)
 
-        return response
+        return extract_code(response, "solidity")
+    
     
     def ask_for_correct_smart_contract_unit_test_hardhat(self, results: str) -> str:
         """
@@ -293,6 +300,8 @@ class PDFHelperServices:
         
         escaped_contract_code = contract_code.replace("{", "{{").replace("}", "}}")
         escaped_test_code = test_code.replace("{", "{{").replace("}", "}}")
+        escaped_results =  results.replace("{", "{{").replace("}", "}}")
+
         prompt = f"""I want you to correct this smart contract or/and unit test code based on these results from hardhat:
         
         smart contract:
@@ -301,14 +310,17 @@ class PDFHelperServices:
         unit  test:
         {escaped_test_code}
 
-        slither Results:
-        {results}
+        hardhat Results:
+        {escaped_results}
         
         Note that I want only the corrected code, no other explanations."""
         print("#########", prompt)
         response = self._generate_response(prompt)
 
-        return response
+        smart_contract = extract_code(response, "solidity")
+        unit_test = extract_code(response, "javascript")  # Assuming unit test is in JavaScript
+
+        return smart_contract, unit_test
     
     def _generate_response(self, prompt: str) -> str:
         """
@@ -337,3 +349,7 @@ class PDFHelperServices:
         response = llm_chain.run({"question": prompt})
 
         return response.strip()
+
+
+      # Extract corrected smart contract and unit test code
+    
