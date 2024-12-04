@@ -217,6 +217,99 @@ class PDFHelperServices:
                     fichier.write(match + "\n")
         return response
 
+    def ask_for_regenerate_smart_contract_solc(self, results: str) -> str:
+        """
+        Regenerate a smart contract based on the provided solc results.
+        """
+
+        contract_file_path = './hardhat_test_env/contracts/contract.sol'
+
+        try:
+            with open(contract_file_path, 'r') as file:
+                contract_code = file.read()
+        except FileNotFoundError:
+            return f"Error: {contract_file_path} not found."
+        
+        escaped_contract_code = contract_code.replace("{", "{{").replace("}", "}}")
+        prompt = f"""I want you to correct this smart contract code based on these results from solc:
+        
+        smart contract:
+        {escaped_contract_code}
+        
+        solc Results:
+        {results}
+        
+        Note that I want only the corrected code, no other explanations."""
+        print("#########", prompt)
+        response = self._generate_response(prompt)
+
+        return response
+
+    def ask_for_regenerate_smart_contract_slither(self, results: str) -> str:
+        """
+        Regenerate a smart contract based on the provided slither results.
+        """
+
+        contract_file_path = './hardhat_test_env/contracts/contract.sol'
+
+        try:
+            with open(contract_file_path, 'r') as file:
+                contract_code = file.read()
+        except FileNotFoundError:
+            return f"Error: {contract_file_path} not found."
+        
+        escaped_contract_code = contract_code.replace("{", "{{").replace("}", "}}")
+        prompt = f"""I want you to correct this smart contract code based on these results from slither:
+        
+        smart contract:
+        {escaped_contract_code}
+        
+        slither Results:
+        {results}
+        
+        Note that I want only the corrected code, no other explanations."""
+        print("#########", prompt)
+        response = self._generate_response(prompt)
+
+        return response
+    
+    def ask_for_correct_smart_contract_unit_test_hardhat(self, results: str) -> str:
+        """
+        Regenerate a smart contract based on the provided hardhat results.
+        """
+
+        contract_file_path = './hardhat_test_env/contracts/contract.sol'
+        test_file_path = './hardhat_test_env/test/test.js'
+
+        try:
+        # Attempt to read both files
+            with open(test_file_path, 'r') as test_file:
+                test_code = test_file.read()
+            with open(contract_file_path, 'r') as contract_file:
+                contract_code = contract_file.read()
+        except FileNotFoundError as e:
+        # Return an error message based on which file was not found
+            return f"Error: {e.filename} not found."
+        
+        escaped_contract_code = contract_code.replace("{", "{{").replace("}", "}}")
+        escaped_test_code = test_code.replace("{", "{{").replace("}", "}}")
+        prompt = f"""I want you to correct this smart contract or/and unit test code based on these results from hardhat:
+        
+        smart contract:
+        {escaped_contract_code}
+        
+        unit  test:
+        {escaped_test_code}
+
+        slither Results:
+        {results}
+        
+        Note that I want only the corrected code, no other explanations."""
+        print("#########", prompt)
+        response = self._generate_response(prompt)
+
+        return response
+    
     def _generate_response(self, prompt: str) -> str:
         """
         Function to generate a response based on the provided prompt.

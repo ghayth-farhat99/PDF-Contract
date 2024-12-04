@@ -218,6 +218,54 @@ const useSteps = (initialMessage, initialStep = 0, totalSteps) => {
         }
     }
 
+    const RegenerateSmartContractBasedOnSolc = async () => {
+        try{
+            setLoading(true);
+            const response = await fetchData(
+                `${process.env.REACT_APP_BACKEND_URL}/regenerate_smart_contract_solc`,
+                { solc_results: solcResult.stdout},
+                (data) => setMessageSmartContract(data["smart_contract"])
+            );
+            console.log(response);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const RegenerateSmartContractBasedOnSlither = async () => {
+        try{
+            setLoading(true);
+            const response = await fetchData(
+                `${process.env.REACT_APP_BACKEND_URL}/regenerate_smart_contract_slither`,
+                { slither_results: slitherResult.stdout},
+                (data) => setMessageSmartContract(data["smart_contract"])
+            );
+            console.log(response);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const RegenerateSmartContractAndUnitTestBasedOnHardhat = async () => {
+        try{
+            setLoading(true);
+            const response = await fetchData(
+                `${process.env.REACT_APP_BACKEND_URL}/regenerate_smart_contract_hardhat`,
+                { slither_results: slitherResult.stdout},
+                (data) => setMessageSmartContract(data["smart_contract"]), setMessageUnitTest(data["unit_tests"])
+            );
+            console.log(response);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     const nextStep = async () => {
         switch (currentStep) {
             case 1:
