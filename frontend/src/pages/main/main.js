@@ -33,7 +33,8 @@ function Main() {
         hardhatResult,
         eslintResult,
         startEslint,
-        RegenerateUnitTestBasedOnEslint
+        RegenerateUnitTestBasedOnEslint,
+        correct
     } = useSteps(initialMessage, 0, totalSteps);
 
     const renderStep = () => {
@@ -85,6 +86,7 @@ function Main() {
                         slitherResult={slitherResult}
                         messageUnitTest={messageUnitTest}
                         setMessageUnitTest={setMessageUnitTest}
+                        correct={correct}
                         download={downloadHardhat}
                     />
                 );

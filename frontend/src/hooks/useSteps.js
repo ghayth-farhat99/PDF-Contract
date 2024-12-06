@@ -4,7 +4,6 @@ const useSteps = (initialMessage, initialStep = 0, totalSteps) => {
     const [message, setMessage] = useState(initialMessage);
     const [messageUnitTest, setMessageUnitTest] = useState("");
     const [messageSmartContract, setMessageSmartContract] = useState("");
-    const [analyzeContract, setAnalyzeContract] = useState("");
     const [inputFile, setInputFile] = useState(null); // For Step 0 file input
     const [loading, setLoading] = useState(false); // Loading state
     const [optionAnalyse, setOptionAnalyse] = useState([])
@@ -193,8 +192,9 @@ const useSteps = (initialMessage, initialStep = 0, totalSteps) => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
-            console.log(data)
-            await setEslintResult(data);
+            await setEslintResult(Object.entries(data.eslint_response)
+                .map(([key, value]) => `${key}: ${value}`)
+                .join("\n"));
         } catch (error) {
             console.error('Error starting the eslint:', error);
         } finally {
@@ -207,7 +207,7 @@ const useSteps = (initialMessage, initialStep = 0, totalSteps) => {
             setLoading(true);
             const response = await fetchData(
                 `${process.env.REACT_APP_BACKEND_URL}/regenerate_unit_test_eslint`,
-                { eslint_results: eslintResult.stdout},
+                { eslint_results: eslintResult},
                 (data) => setMessageUnitTest(data["unit_tests"])
             );
             console.log(response);
@@ -218,12 +218,23 @@ const useSteps = (initialMessage, initialStep = 0, totalSteps) => {
         }
     }
 
+    const correct = async (solc_status, slither_status, hardhat_status) => {
+        if(solc_status === 'failed'){
+            RegenerateSmartContractBasedOnSolc();
+        }else{
+            if(hardhat_status === 'failed'){
+                RegenerateSmartContractAndUnitTestBasedOnHardhat(); 
+            }else{
+                RegenerateSmartContractBasedOnSlither();
+            }
+        }
+    }
     const RegenerateSmartContractBasedOnSolc = async () => {
         try{
             setLoading(true);
             const response = await fetchData(
                 `${process.env.REACT_APP_BACKEND_URL}/regenerate_smart_contract_solc`,
-                { solc_results: solcResult.stdout},
+                { solc_results: solcResult},
                 (data) => setMessageSmartContract(data["smart_contract"])
             );
             console.log(response);
@@ -239,7 +250,7 @@ const useSteps = (initialMessage, initialStep = 0, totalSteps) => {
             setLoading(true);
             const response = await fetchData(
                 `${process.env.REACT_APP_BACKEND_URL}/regenerate_smart_contract_slither`,
-                { slither_results: slitherResult.stdout},
+                { slither_results: slitherResult},
                 (data) => setMessageSmartContract(data["smart_contract"])
             );
             console.log(response);
@@ -251,12 +262,16 @@ const useSteps = (initialMessage, initialStep = 0, totalSteps) => {
     }
 
     const RegenerateSmartContractAndUnitTestBasedOnHardhat = async () => {
-        try{
+        try {
+            console.log("hardhatResult :", hardhatResult);
             setLoading(true);
             const response = await fetchData(
                 `${process.env.REACT_APP_BACKEND_URL}/regenerate_smart_contract_hardhat`,
-                { slither_results: slitherResult.stdout},
-                (data) => setMessageSmartContract(data["smart_contract"]), setMessageUnitTest(data["unit_tests"])
+                { hardhat_results: hardhatResult },
+                (data) => {
+                    setMessageSmartContract(data["smart_contract"]);
+                    setMessageUnitTest(data["unit_test"]); // Fix: Use "unit_test" as per your endpoint response
+                }
             );
             console.log(response);
         } catch (error) {
@@ -264,7 +279,8 @@ const useSteps = (initialMessage, initialStep = 0, totalSteps) => {
         } finally {
             setLoading(false);
         }
-    }
+    };
+    
 
     const nextStep = async () => {
         switch (currentStep) {
@@ -297,6 +313,16 @@ const useSteps = (initialMessage, initialStep = 0, totalSteps) => {
     };
 
     const prevStep = () => {
+        console.log("currentStep : ", currentStep)
+        if(currentStep === 3){
+            setSolcResult("");
+            setSlitherResult("");
+            setHardhatResult("");
+        }else{
+            if(currentStep === 2){
+                setEslintResult("");
+            }
+        }
         setCurrentStep((prev) => Math.max(prev - 1, 0));
     };
 
@@ -305,7 +331,6 @@ const useSteps = (initialMessage, initialStep = 0, totalSteps) => {
         setMessage(initialMessage);
         setMessageUnitTest("");
         setMessageSmartContract("");
-        setAnalyzeContract("");
         setEslintResult("");
         setInputFile(null);
     };
@@ -323,8 +348,6 @@ const useSteps = (initialMessage, initialStep = 0, totalSteps) => {
                 setMessagePrompt, */
         messageSmartContract,
         setMessageSmartContract,
-        analyzeContract,
-        setAnalyzeContract,
         OnChangeFile,
         uploadFile,
         inputFile,
@@ -338,7 +361,8 @@ const useSteps = (initialMessage, initialStep = 0, totalSteps) => {
         hardhatResult,
         eslintResult, // results from eslint tool
         startEslint,
-        RegenerateUnitTestBasedOnEslint
+        RegenerateUnitTestBasedOnEslint,
+        correct
     };
 
 };

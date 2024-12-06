@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Settings from '../settings/settings';
 
-const Step3 = ({ onBack, onNext, messageUnitTest, setMessageUnitTest, messageSmartContract, setMessageSmartContract, loading, optionAnalyse, setOptionAnalyse, startAnalyse, solcResult, slitherResult, hardhatResult, download }) => {
+const Step3 = ({ onBack, onNext, messageUnitTest, setMessageUnitTest, messageSmartContract, setMessageSmartContract, loading, optionAnalyse, setOptionAnalyse, startAnalyse, solcResult, slitherResult, hardhatResult, correct, download }) => {
     const [activeTab, setActiveTab] = useState('smartContract');
     const [activeTabBottom, setActiveTabBottom] = useState('solc'); // Bottom tabs: Solc, Slither, Hardhat
     const handleCheckboxChange = (event) => {
@@ -69,6 +69,18 @@ const Step3 = ({ onBack, onNext, messageUnitTest, setMessageUnitTest, messageSma
         });
     };
 
+    // this function will extract the status of each results variable
+    function extractStatus(resultString) {
+        const lines = resultString.split("\n");
+        const statusLine = lines.find(line => line.startsWith("status:"));
+        return statusLine ? statusLine.split(":")[1].trim() : null;
+      }
+
+    // to handle the correct function
+    const handleRegenerateClick = () => {
+    correct(extractStatus(solcResult), extractStatus(slitherResult), extractStatus(hardhatResult));
+    };
+      
     return (
         <div className="fifth-step">
             <Settings />
@@ -300,6 +312,25 @@ const Step3 = ({ onBack, onNext, messageUnitTest, setMessageUnitTest, messageSma
                         >
                             Start Analyse
                         </button>
+
+                        {((solcResult && extractStatus(solcResult) === 'failed') || 
+                        (slitherResult && extractStatus(slitherResult) === 'failed') || 
+                        (hardhatResult && extractStatus(hardhatResult) === 'failed')) && (
+                            <button
+                            onClick={handleRegenerateClick}
+                                type="button"
+                                className="btn btn-success"
+                                style={{
+                                    '--bs-btn-padding-y': '.25rem',
+                                    '--bs-btn-padding-x': '.5rem',
+                                    '--bs-btn-font-size': '.75rem',
+                                    margin: '5px',
+                                }}
+                            >
+                                Regenerate
+                            </button>
+                        )}
+
                     </div>
 
                 </div>

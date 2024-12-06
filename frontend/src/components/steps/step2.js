@@ -29,9 +29,11 @@ const Step2 = ({ onBack, onNext, messageUnitTest, setMessageUnitTest, loading, s
         lineNumberDiv.scrollTop = e.target.scrollTop;
     };
 
-    var results = '';
-    if (eslintResult) {
-        results = `ESLINT: \n Status: ${eslintResult.status} \n stdout: ${eslintResult.stdout} stderr: ${eslintResult.stderr}`;
+      // this function will extract the status of each results variable
+    function extractStatus(resultString) {
+        const lines = resultString.split("\n");
+        const statusLine = lines.find(line => line.startsWith("status:"));
+        return statusLine ? statusLine.split(":")[1].trim() : null;
     }
 
 
@@ -70,7 +72,7 @@ const Step2 = ({ onBack, onNext, messageUnitTest, setMessageUnitTest, loading, s
                             marginTop: '1.5vh',
                         }}
                     >
-                        {eslintResult && eslintResult.status === 'failed' && (
+                        {(eslintResult && extractStatus(eslintResult) === 'failed') && (
                             <button
                             onClick={RegenerateUnitTestBasedOnEslint}
                                 type="button"
@@ -179,7 +181,7 @@ const Step2 = ({ onBack, onNext, messageUnitTest, setMessageUnitTest, loading, s
                                 textAlign: 'left',
                             }}
                         >
-                            <pre>{results}</pre>
+                            <pre>{eslintResult}</pre>
                         </div>
                     </div>
                 </div>
